@@ -62,6 +62,10 @@ pnpm dev:mobile
 - [docs/DEPLOY.md](docs/DEPLOY.md) — despliegue a producción.
 - [docs/LEGAL.md](docs/LEGAL.md) — consideraciones legales y de privacidad.
 
+## Contribuir
+
+Mirá [CONTRIBUTING.md](CONTRIBUTING.md): convenciones de commits, ramas, estilo y tests.
+
 ## Licencia
 
-Este proyecto es un MVP de demostración. Los datos de muestra son ficticios.
+[MIT](LICENSE). Este proyecto es un MVP de demostración; los datos de muestra son ficticios.
