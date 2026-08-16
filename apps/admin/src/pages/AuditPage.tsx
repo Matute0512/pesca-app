@@ -12,19 +12,14 @@ interface AuditLog {
   user: { email: string; username: string | null } | null;
 }
 
-interface ListResponse {
-  data: AuditLog[];
-  total: number;
-}
-
 export function AuditPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api
-      .get<ListResponse>('/admin/audit-logs?pageSize=50')
-      .then((r) => setLogs(r.data))
+      .get<AuditLog[]>('/admin/audit-logs?pageSize=50')
+      .then((r) => setLogs(r))
       .catch((err) => setError(err instanceof Error ? err.message : 'Error'));
   }, []);
 

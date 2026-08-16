@@ -13,11 +13,6 @@ interface AdminUser {
   createdAt: string;
 }
 
-interface ListResponse {
-  data: AdminUser[];
-  total: number;
-}
-
 const ROLES = ['user', 'moderator', 'editor', 'admin'];
 
 export function UsersPage() {
@@ -26,8 +21,8 @@ export function UsersPage() {
 
   const load = useCallback(() => {
     api
-      .get<ListResponse>('/admin/users?pageSize=50')
-      .then((r) => setUsers(r.data))
+      .get<AdminUser[]>('/admin/users?pageSize=50')
+      .then((r) => setUsers(r))
       .catch((err) => setError(err instanceof Error ? err.message : 'Error'));
   }, []);
 

@@ -32,7 +32,7 @@ export default function SearchScreen() {
     queryFn: () => {
       const params: Record<string, string | number> = { q: submitted ?? '' };
       if (selectedTypes.length) params.siteTypes = selectedTypes.join(',');
-      return api.get<{ data: SiteSummary[] }>('/sites/search', params).then((r) => r.data);
+      return api.get<SiteSummary[]>('/sites/search', params);
     },
     enabled: submitted !== null && submitted.length > 0,
   });

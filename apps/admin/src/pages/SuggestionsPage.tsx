@@ -17,11 +17,6 @@ interface Suggestion {
   createdAt: string;
 }
 
-interface ListResponse {
-  data: Suggestion[];
-  total: number;
-}
-
 export function SuggestionsPage() {
   const [items, setItems] = useState<Suggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +24,8 @@ export function SuggestionsPage() {
 
   const load = useCallback(() => {
     api
-      .get<ListResponse>('/admin/suggestions')
-      .then((r) => setItems(r.data))
+      .get<Suggestion[]>('/admin/suggestions')
+      .then((r) => setItems(r))
       .catch((err) => setError(err instanceof Error ? err.message : 'Error'));
   }, []);
 

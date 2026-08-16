@@ -15,11 +15,6 @@ interface AdminSite {
   species: Array<{ species: { slug: string } }>;
 }
 
-interface SitesResponse {
-  data: AdminSite[];
-  total: number;
-}
-
 export function SitesListPage() {
   const navigate = useNavigate();
   const [sites, setSites] = useState<AdminSite[]>([]);
@@ -30,10 +25,10 @@ export function SitesListPage() {
   useEffect(() => {
     const q = search ? `&search=${encodeURIComponent(search)}` : '';
     api
-      .get<SitesResponse>(`/admin/sites?pageSize=50${q}`)
+      .get<AdminSite[]>(`/admin/sites?pageSize=50${q}`)
       .then((r) => {
-        setSites(r.data);
-        setTotal(r.total);
+        setSites(r);
+        setTotal(r.length);
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Error'));
   }, [search]);

@@ -19,7 +19,7 @@ export default function FavoritesScreen() {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['favorites', listName],
     queryFn: () =>
-      api.get<{ data: SiteSummary[] }>('/favorites', { listName }).then((r) => r.data),
+      api.get<SiteSummary[]>('/favorites', { listName }),
     enabled: status === 'authenticated',
   });
 

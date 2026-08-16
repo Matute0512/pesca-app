@@ -12,11 +12,6 @@ interface Report {
   site: { id: string; name: string; slug: string };
 }
 
-interface ListResponse {
-  data: Report[];
-  total: number;
-}
-
 export function ReportsPage() {
   const [items, setItems] = useState<Report[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +19,8 @@ export function ReportsPage() {
 
   const load = useCallback(() => {
     api
-      .get<ListResponse>('/admin/reports')
-      .then((r) => setItems(r.data))
+      .get<Report[]>('/admin/reports')
+      .then((r) => setItems(r))
       .catch((err) => setError(err instanceof Error ? err.message : 'Error'));
   }, []);
 
