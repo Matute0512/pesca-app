@@ -3,8 +3,10 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    // nodenext reemplaza la resolución "node" (node10), deprecada en TS 6+.
+    // Con "type" ausente (commonjs por defecto) emite CJS, igual que antes.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

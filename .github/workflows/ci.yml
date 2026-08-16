@@ -45,8 +45,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
+        # La versión la define el campo `packageManager` del package.json raíz
+        # (no pasar `version` aquí: action-setup v4 lo rechaza si hay dos fuentes).
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -84,4 +84,4 @@ jobs:
         run: pnpm --filter api test:e2e
 
       - name: Build (api + worker + admin)
-        run: pnpm -r build --filter '!@pescaba/mobile'
+        run: pnpm -r --filter '!@pescaba/mobile' build
