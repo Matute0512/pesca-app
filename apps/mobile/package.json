@@ -12,27 +12,29 @@
     "test": "echo \"@pescaba/mobile: no tests yet\""
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
     "@pescaba/geo": "workspace:*",
     "@pescaba/shared": "workspace:*",
-    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@tanstack/react-query": "^5.62.7",
-    "expo": "~53.0.0",
-    "expo-constants": "~17.0.3",
-    "expo-linking": "~7.0.3",
-    "expo-location": "~18.0.4",
-    "expo-router": "~5.0.3",
-    "expo-status-bar": "~2.2.2",
+    "expo": "~54.0.36",
+    "expo-constants": "~18.0.13",
+    "expo-linking": "~8.0.12",
+    "expo-location": "~19.0.8",
+    "expo-router": "~6.0.24",
+    "expo-status-bar": "~3.0.9",
     "i18next": "^24.2.0",
     "react": "19.1.0",
     "react-i18next": "^15.4.0",
-    "react-native": "0.79.2",
+    "react-native": "0.81.5",
     "react-native-maps": "1.20.1",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.10.0",
+    "react-native-safe-area-context": "5.6.2",
+    "react-native-screens": "~4.16.0",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "typescript": "~5.8.3"
+    "babel-preset-expo": "^54.0.12",
+    "typescript": "~5.9.3"
   }
 }

@@ -5,8 +5,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src", "expo-env.d.ts"]
+  "include": [
+    "src"
+  ]
 }
