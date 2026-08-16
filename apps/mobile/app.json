@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "PescaBA",
+    "slug": "pescaba",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "pescaba",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PescaBA usa tu ubicación para mostrarte lugares de pesca cercanos."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.pescaba.app"
+    },
+    "android": {
+      "package": "dev.pescaba.app",
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    }
+  }
+}

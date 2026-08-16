@@ -1,0 +1,25 @@
+{
+  "name": "@pescaba/worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PescaBA — worker de jobs en segundo plano (BullMQ + Sharp)",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "start:dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "echo \"@pescaba/worker: no tests yet\""
+  },
+  "dependencies": {
+    "@pescaba/shared": "workspace:*",
+    "bullmq": "^5.34.0",
+    "ioredis": "^5.4.1",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

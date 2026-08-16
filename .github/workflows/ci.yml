@@ -1,0 +1,87 @@
+# PescaBA — CI
+# Instala deps, corre lint + typecheck + tests (unit y e2e con PostGIS+Redis) y buildea.
+# No despliega a producción automáticamente (requiere configuración explícita).
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  ci:
+    name: Lint, typecheck, test y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.5-alpine
+        env:
+          POSTGRES_USER: pesca
+          POSTGRES_PASSWORD: pesca_dev_password
+          POSTGRES_DB: pesca_ba_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pesca -d pesca_ba_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages (shared + geo)
+        run: pnpm --filter @pescaba/shared --filter @pescaba/geo build
+
+      - name: Generate Prisma client
+        run: pnpm --filter api prisma:generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm --filter @pescaba/shared --filter @pescaba/geo --filter api test
+
+      - name: Run migrations (test DB)
+        env:
+          DATABASE_URL: postgresql://pesca:pesca_dev_password@localhost:5432/pesca_ba_test?schema=public
+        run: pnpm --filter api prisma:migrate
+
+      - name: E2E tests (PostGIS + Redis)
+        env:
+          TEST_DATABASE_URL: postgresql://pesca:pesca_dev_password@localhost:5432/pesca_ba_test?schema=public
+          TEST_REDIS_URL: redis://localhost:6379
+        run: pnpm --filter api test:e2e
+
+      - name: Build (api + worker + admin)
+        run: pnpm -r build --filter '!@pescaba/mobile'

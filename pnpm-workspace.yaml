@@ -1,0 +1,14 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Paquetes que requieren build scripts (postinstall) en pnpm 10+.
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - argon2
+  - sharp
+  - esbuild
+  - msgpackr-extract
+  - "@scarf/scarf"

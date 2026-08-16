@@ -1,0 +1,431 @@
+// PescaBA — Esquema de base de datos (PostgreSQL + PostGIS)
+// Las columnas geométricas (geom geography, search_vector) se crean en la migración
+// SQL como índices sobre expresiones; Prisma mantiene latitude/longitude como fuente
+// de verdad. Ver docs/ARCHITECTURE.md → ADR-002.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────── Enums
+
+enum UserRole {
+  USER
+  MODERATOR
+  EDITOR
+  ADMIN
+}
+
+enum SiteType {
+  beach
+  lagoon
+  lake
+  river
+  stream
+  pier
+  jetty
+  harbor
+  club
+  boat_launch
+  public_access
+  dam
+  wetland
+}
+
+enum AccessType {
+  public
+  permit_required
+  paid
+  free
+  car
+  offroad
+  walking
+  boat
+}
+
+enum OwnershipType {
+  public
+  private
+  club
+  municipal
+  provincial
+  national
+  cooperative
+  unknown
+}
+
+enum AmenityType {
+  parking
+  restrooms
+  camping
+  grills
+  store
+  boat_ramp
+  boat_rental
+  guides
+  cell_signal
+}
+
+enum SpeciesCategory {
+  baitfish
+  sport
+  predator
+  commercial
+}
+
+enum ReportType {
+  wrong_coordinates
+  place_closed
+  restricted_access
+  false_information
+  wrong_phone
+  dangerous_place
+  garbage
+  turbid_water
+  fishing_prohibited
+  duplicate
+  inappropriate_content
+}
+
+enum ReportStatus {
+  open
+  in_review
+  resolved
+  rejected
+}
+
+enum SuggestionStatus {
+  pending
+  approved
+  rejected
+}
+
+enum FavoriteListName {
+  favorites
+  pending
+  visited
+}
+
+enum PhotoModerationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum AuthProvider {
+  local
+  google
+  apple
+}
+
+// ────────────────────────────────────────────── Models
+
+model User {
+  id               String   @id @default(uuid()) @db.Uuid
+  authProvider     AuthProvider @default(local)
+  authSubject      String?  @unique
+  email            String   @unique
+  username         String?  @unique
+  fullName         String?
+  avatarUrl        String?
+  passwordHash     String?
+  role             UserRole @default(USER)
+  emailVerified    Boolean  @default(false)
+  preferredLanguage String  @default("es")
+  preferredUnits   String   @default("metric")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  sitesCreated     FishingSite[]  @relation("sites_created_by")
+  sitesUpdated     FishingSite[]  @relation("sites_updated_by")
+  sitesVerified    FishingSite[]  @relation("sites_verified_by")
+  favorites        Favorite[]
+  reports          SiteReport[]
+  suggestions      SiteSuggestion[]
+  photos           SitePhoto[]
+  auditLogs        AuditLog[]
+
+  @@index([email])
+  @@index([role])
+
+  @@map("users")
+}
+
+model FishingSite {
+  id                  String   @id @default(uuid()) @db.Uuid
+  slug                String   @unique
+  name                String
+  alternativeName     String?
+  descriptionShort    String?
+  descriptionLong     String?
+  siteType            SiteType
+  accessType          AccessType?
+  ownershipType       OwnershipType?
+  isPublic            Boolean  @default(true)
+  isVerified          Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  latitude            Float
+  longitude           Float
+  geomPrecisionMeters Int?
+  addressLine         String?
+  addressNotes        String?
+  locality            String?
+  municipality        String?
+  province            String?
+  region              String?
+  countryCode         String   @default("ar")
+  postalCode          String?
+  phone               String?
+  phoneExtension      String?
+  whatsapp            String?
+  email               String?
+  website             String?
+  openingHours        String?
+  entryFee            String?
+  bestSeason          String?
+  difficultyLevel     Int?
+  allowsBoats         Boolean  @default(false)
+  allowsNightFishing  Boolean  @default(false)
+  allowsCamping       Boolean  @default(false)
+  source              String?
+  externalId          String?
+  createdBy           String?  @db.Uuid
+  updatedBy           String?  @db.Uuid
+  verifiedBy          String?  @db.Uuid
+  verifiedAt          DateTime?
+  lastCheckedAt       DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+
+  createdByUser       User?    @relation("sites_created_by", fields: [createdBy], references: [id])
+  updatedByUser       User?    @relation("sites_updated_by", fields: [updatedBy], references: [id])
+  verifiedByUser      User?    @relation("sites_verified_by", fields: [verifiedBy], references: [id])
+
+  species    FishingSiteSpecies[]
+  amenities  SiteAmenity[]
+  photos     SitePhoto[]
+  favorites  Favorite[]
+  reports    SiteReport[]
+
+  @@index([siteType])
+  @@index([isVerified])
+  @@index([isActive])
+  @@index([latitude, longitude])
+  @@index([locality])
+  @@index([province])
+  @@index([countryCode])
+  @@index([createdAt])
+
+  @@map("fishing_sites")
+}
+
+model Species {
+  id            String          @id @default(uuid()) @db.Uuid
+  slug          String          @unique
+  commonNameEs  String
+  commonNameEn  String?
+  scientificName String
+  category      SpeciesCategory
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  sites         FishingSiteSpecies[]
+
+  @@index([category])
+
+  @@map("species")
+}
+
+model FishingSiteSpecies {
+  siteId     String   @db.Uuid
+  speciesId  String   @db.Uuid
+  abundance  String?
+  season     String?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  site      FishingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  species   Species     @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, speciesId])
+
+  @@map("fishing_site_species")
+}
+
+model SiteAmenity {
+  siteId       String   @db.Uuid
+  amenityType  AmenityType
+  isAvailable  Boolean  @default(true)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  site         FishingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([siteId, amenityType])
+
+  @@map("site_amenities")
+}
+
+model SitePhoto {
+  id              String   @id @default(uuid()) @db.Uuid
+  siteId          String   @db.Uuid
+  userId          String?  @db.Uuid
+  storageKey      String
+  url             String
+  thumbnailUrl    String?
+  width           Int?
+  height          Int?
+  mimeType        String?
+  caption         String?
+  isCover         Boolean  @default(false)
+  moderationStatus PhotoModerationStatus @default(pending)
+  createdAt       DateTime @default(now())
+
+  site            FishingSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user            User?       @relation(fields: [userId], references: [id])
+
+  @@index([siteId])
+  @@index([moderationStatus])
+
+  @@map("site_photos")
+}
+
+model Favorite {
+  userId     String           @db.Uuid
+  siteId     String           @db.Uuid
+  listName   FavoriteListName @default(favorites)
+  createdAt  DateTime         @default(now())
+
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site       FishingSite   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([userId, siteId])
+  @@index([listName])
+
+  @@map("favorites")
+}
+
+model SiteReport {
+  id          String       @id @default(uuid()) @db.Uuid
+  siteId      String       @db.Uuid
+  userId      String?      @db.Uuid
+  reportType  ReportType
+  description String?
+  status      ReportStatus @default(open)
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?      @db.Uuid
+
+  site        FishingSite  @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id])
+
+  @@index([siteId])
+  @@index([status])
+  @@index([createdAt])
+
+  @@map("site_reports")
+}
+
+model SiteSuggestion {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String?          @db.Uuid
+  name           String
+  siteType       SiteType
+  latitude       Float
+  longitude      Float
+  addressLine    String?
+  locality       String?
+  municipality   String?
+  province       String?
+  countryCode    String           @default("ar")
+  phone          String?
+  website        String?
+  description    String?
+  accessNotes    String?
+  amenities      String[]
+  speciesSlugs   String[]
+  source         String?
+  status         SuggestionStatus @default(pending)
+  reviewedBy     String?          @db.Uuid
+  reviewedAt     DateTime?
+  rejectionReason String?
+  createdAt      DateTime         @default(now())
+
+  user           User?            @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([createdAt])
+
+  @@map("site_suggestions")
+}
+
+model Region {
+  id           String   @id @default(uuid()) @db.Uuid
+  countryCode  String
+  adminLevel1  String?
+  adminLevel2  String?
+  adminLevel3  String?
+  name         String
+  slug         String
+  boundaryGeoJson String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  regulations  FishingRegulation[]
+
+  @@unique([countryCode, slug])
+  @@index([countryCode])
+
+  @@map("regions")
+}
+
+model FishingRegulation {
+  id            String   @id @default(uuid()) @db.Uuid
+  regionId      String   @db.Uuid
+  title         String
+  summary       String?
+  content       String?
+  officialUrl   String?
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  language      String   @default("es")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  region        Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@index([regionId])
+  @@index([effectiveFrom])
+
+  @@map("fishing_regulations")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @db.Uuid
+  action      String
+  entityType  String
+  entityId    String?
+  before      Json?
+  after       Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+
+  @@map("audit_logs")
+}

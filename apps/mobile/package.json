@@ -1,0 +1,38 @@
+{
+  "name": "@pescaba/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "start:web": "expo start --web",
+    "start:android": "expo start --android",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"lint omitido para mobile (Expo, config de lint del monorepo)\"",
+    "test": "echo \"@pescaba/mobile: no tests yet\""
+  },
+  "dependencies": {
+    "@pescaba/geo": "workspace:*",
+    "@pescaba/shared": "workspace:*",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@tanstack/react-query": "^5.62.7",
+    "expo": "~53.0.0",
+    "expo-constants": "~17.0.3",
+    "expo-linking": "~7.0.3",
+    "expo-location": "~18.0.4",
+    "expo-router": "~5.0.3",
+    "expo-status-bar": "~2.2.2",
+    "i18next": "^24.2.0",
+    "react": "19.1.0",
+    "react-i18next": "^15.4.0",
+    "react-native": "0.79.2",
+    "react-native-maps": "1.20.1",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.10.0",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.8.3"
+  }
+}

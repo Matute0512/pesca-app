@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+apps/mobile/android/
+apps/mobile/ios/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Prisma
+apps/api/prisma/*.db
+
+# Claude Code (config local de la máquina, no se comparte)
+.claude/settings.local.json
+
