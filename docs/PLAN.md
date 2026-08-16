@@ -116,6 +116,7 @@ redes sociales, chat entre usuarios, calificaciones, modo offline completo ni ma
 - [x] Workflow GitHub Actions: install → lint → typecheck → test → build.
 - [x] Verificación local: `pnpm install`, `prisma generate`, lint/typecheck/build en todos los workspaces.
 - [x] Levantar docker (si el daemon corre), migrar, seedear y probar `GET /v1/sites/nearby`.
+  - ✅ Verificado en runtime el 2026-08-16: infra healthy (PostGIS/Redis/MinIO), migración aplicada, seed OK (10 users, 20 especies, 5 regiones, 20 lugares demo), `pnpm test` (18 unit) + `pnpm test:e2e` (11 e2e) en verde, smoke test de `/health`, `/v1/sites/nearby` y `/v1/sites/search` OK. Plan 100% cerrado.
 
 ### Etapa 9 — Documentación
 - [x] README raíz.
