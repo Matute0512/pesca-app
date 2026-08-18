@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { SITE_TYPES } from '@pescaba/shared';
+import { SITE_TYPE_LABELS, SITE_TYPES } from '@pescaba/shared';
 import { api } from '@/lib/api';
 import { useFiltersStore } from '@/store/filters';
 
@@ -69,7 +69,7 @@ export default function SuggestScreen() {
             style={[styles.chip, siteType === type && styles.chipActive]}
             onPress={() => setSiteType(type)}
           >
-            <Text style={siteType === type ? styles.chipTextActive : undefined}>{type}</Text>
+            <Text style={siteType === type ? styles.chipTextActive : undefined}>{SITE_TYPE_LABELS[type].es}</Text>
           </Pressable>
         ))}
       </View>

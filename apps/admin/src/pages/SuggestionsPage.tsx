@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { DataTable } from '../components/DataTable';
+import { siteTypeLabel } from '../lib/labels';
 import type { ColumnDef } from '@tanstack/react-table';
 
 interface Suggestion {
@@ -52,7 +53,11 @@ export function SuggestionsPage() {
 
   const columns: Array<ColumnDef<Suggestion, unknown>> = [
     { accessorKey: 'name', header: 'Nombre' },
-    { accessorKey: 'siteType', header: 'Tipo' },
+    {
+      accessorKey: 'siteType',
+      header: 'Tipo',
+      cell: ({ getValue }) => siteTypeLabel(getValue() as string),
+    },
     {
       accessorKey: 'locality',
       header: 'Localidad',

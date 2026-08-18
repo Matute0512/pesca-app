@@ -15,7 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
   createSiteSchema,
   reviewReportSchema,
@@ -82,6 +82,9 @@ export class AdminController {
 
   @Get('sites')
   @ApiOperation({ summary: 'Listar lugares (admin)' })
+  @ApiQuery({ name: 'page', type: Number, required: false, description: 'Página (default 1)' })
+  @ApiQuery({ name: 'pageSize', type: Number, required: false, description: 'Cantidad por página (default 20)' })
+  @ApiQuery({ name: 'search', type: String, required: false, description: 'Buscar por nombre' })
   listSites(
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
@@ -103,6 +106,7 @@ export class AdminController {
 
   @Get('sites/:id')
   @ApiOperation({ summary: 'Detalle de lugar (admin)' })
+  @ApiParam({ name: 'id', type: String, description: 'UUID del lugar' })
   getSite(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.admin.getSite(id);
   }
@@ -142,6 +146,7 @@ export class AdminController {
   @Post('sites/import')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Importar lugares desde CSV o GeoJSON' })
+  @ApiQuery({ name: 'dryRun', type: String, required: false, enum: ['true', 'false'], description: 'true para validar sin escribir (default false)' })
   importSites(
     @Req() req: Request,
     @CurrentUser() user: AuthenticatedUser,
@@ -155,6 +160,7 @@ export class AdminController {
 
   @Get('suggestions')
   @ApiOperation({ summary: 'Listar sugerencias de lugares' })
+  @ApiQuery({ name: 'status', type: String, required: false, enum: ['pending', 'approved', 'rejected'], description: 'Filtrar por estado' })
   listSuggestions(@Query('status') status?: string) {
     return this.admin.listSuggestions(status);
   }
@@ -174,6 +180,7 @@ export class AdminController {
 
   @Get('reports')
   @ApiOperation({ summary: 'Listar reportes de problemas' })
+  @ApiQuery({ name: 'status', type: String, required: false, enum: ['open', 'in_review', 'resolved', 'rejected'], description: 'Filtrar por estado' })
   listReports(@Query('status') status?: string) {
     return this.admin.listReports(status);
   }
@@ -194,6 +201,7 @@ export class AdminController {
   @Roles('admin')
   @Get('users')
   @ApiOperation({ summary: 'Listar usuarios' })
+  @ApiQuery({ name: 'search', type: String, required: false, description: 'Buscar por email o username' })
   listUsers(@Query('search') search?: string) {
     return this.admin.listUsers(search);
   }

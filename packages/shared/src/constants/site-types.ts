@@ -29,7 +29,7 @@ export const SITE_TYPE_LABELS: Record<SiteType, { es: string; en: string }> = {
   pier: { es: 'Muelle', en: 'Pier' },
   jetty: { es: 'Espigón', en: 'Jetty' },
   harbor: { es: 'Puerto', en: 'Harbor' },
-  club: { es: 'Club', en: 'Club' },
+  club: { es: 'Club de pesca', en: 'Fishing club' },
   boat_launch: { es: 'Bajada de embarcación', en: 'Boat launch' },
   public_access: { es: 'Acceso público', en: 'Public access' },
   dam: { es: 'Represa', en: 'Dam' },

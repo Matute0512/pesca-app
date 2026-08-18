@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { SiteSummary } from '@pescaba/shared';
-import { SITE_TYPES } from '@pescaba/shared';
+import { SITE_TYPE_LABELS, SITE_TYPES } from '@pescaba/shared';
 import { api } from '@/lib/api';
 import { SiteList } from '@/components/SiteList';
 
@@ -77,7 +77,7 @@ export default function SearchScreen() {
             style={[styles.chip, selectedTypes.includes(type) && styles.chipActive]}
             onPress={() => toggleType(type)}
           >
-            <Text style={selectedTypes.includes(type) ? styles.chipTextActive : undefined}>{type}</Text>
+            <Text style={selectedTypes.includes(type) ? styles.chipTextActive : undefined}>{SITE_TYPE_LABELS[type].es}</Text>
           </Pressable>
         ))}
       </ScrollView>

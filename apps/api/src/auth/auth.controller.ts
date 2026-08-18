@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -25,6 +25,17 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'usuario@example.com' },
+        password: { type: 'string', format: 'password', example: 'Contrasena123!' },
+        username: { type: 'string', example: 'pescador' },
+      },
+    },
+  })
   register(@Body(new ZodValidationPipe(registerSchema)) body: RegisterInput) {
     return this.auth.register(body);
   }
@@ -33,6 +44,16 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión (email + contraseña)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'demo.admin@pescaba.dev' },
+        password: { type: 'string', format: 'password', example: 'PescaDemo123!' },
+      },
+    },
+  })
   login(@Body(new ZodValidationPipe(loginSchema)) body: LoginInput) {
     return this.auth.login(body.email, body.password);
   }
@@ -41,6 +62,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Renovar sesión con refresh token (rotación)' })
+  @ApiBody({ schema: { type: 'object', required: ['refreshToken'], properties: { refreshToken: { type: 'string' } } } })
   refresh(@Body(new ZodValidationPipe(refreshSchema)) body: { refreshToken: string }) {
     return this.auth.refresh(body.refreshToken);
   }
@@ -49,6 +71,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Cerrar sesión (revoca el refresh token)' })
+  @ApiBody({ schema: { type: 'object', required: ['refreshToken'], properties: { refreshToken: { type: 'string' } } } })
   async logout(@Body(new ZodValidationPipe(refreshSchema)) body: { refreshToken: string }): Promise<void> {
     await this.auth.logout(body.refreshToken);
   }
@@ -57,6 +80,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Solicitar reset de contraseña' })
+  @ApiBody({ schema: { type: 'object', required: ['email'], properties: { email: { type: 'string', format: 'email' } } } })
   async forgotPassword(@Body(new ZodValidationPipe(forgotPasswordSchema)) body: { email: string }): Promise<void> {
     await this.auth.forgotPassword(body.email);
   }
@@ -65,6 +89,16 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirmar reset de contraseña con token' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['token', 'password'],
+      properties: {
+        token: { type: 'string', description: 'Token recibido por email' },
+        password: { type: 'string', format: 'password' },
+      },
+    },
+  })
   async resetPassword(
     @Body(new ZodValidationPipe(resetPasswordSchema)) body: { token: string; password: string },
   ): Promise<void> {

@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { MapPicker } from '../components/MapPicker';
+import { SITE_TYPES, siteTypeLabel } from '../lib/labels';
 
 interface AdminSite {
   id: string;
@@ -38,10 +39,6 @@ interface AmenityOption {
   labelEs: string;
 }
 
-const SITE_TYPES = [
-  'beach', 'lagoon', 'lake', 'river', 'stream', 'pier', 'jetty', 'harbor', 'club',
-  'boat_launch', 'public_access', 'dam', 'wetland',
-];
 const ACCESS_TYPES = ['public', 'permit_required', 'paid', 'free', 'car', 'offroad', 'walking', 'boat'];
 
 export function SiteEditPage() {
@@ -204,7 +201,7 @@ export function SiteEditPage() {
             <select value={form.siteType} onChange={(e) => update('siteType', e.target.value)}>
               {SITE_TYPES.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {siteTypeLabel(t)}
                 </option>
               ))}
             </select>

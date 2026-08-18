@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { ColumnDef } from '@tanstack/react-table';
 import { api } from '../api/client';
 import { DataTable } from '../components/DataTable';
+import { siteTypeLabel } from '../lib/labels';
 
 interface AdminSite {
   id: string;
@@ -36,7 +37,11 @@ export function SitesListPage() {
   const columns = useMemo<Array<ColumnDef<AdminSite, unknown>>>(
     () => [
       { accessorKey: 'name', header: 'Nombre' },
-      { accessorKey: 'siteType', header: 'Tipo' },
+      {
+        accessorKey: 'siteType',
+        header: 'Tipo',
+        cell: ({ getValue }) => siteTypeLabel(getValue() as string),
+      },
       {
         accessorKey: 'isVerified',
         header: 'Verificado',
