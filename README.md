@@ -50,6 +50,7 @@ pnpm dev:mobile
 
 ## Documentación
 
+- [CHANGELOG.md](CHANGELOG.md) — registro de cambios.
 - [docs/PLAN.md](docs/PLAN.md) — plan de implementación por etapas.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitectura y decisiones (ADR).
 - [docs/SETUP.md](docs/SETUP.md) — guía completa de puesta en marcha.
