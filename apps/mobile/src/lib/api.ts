@@ -1,8 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 /** Cliente HTTP de la app móvil. Tokens en AsyncStorage, refresh automático. */
 
-export const API_BASE: string = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/v1';
+/**
+ * URL base por defecto según plataforma:
+ * - Android emulador: 10.0.2.2 (alias del host de la máquina de desarrollo).
+ * - Web / iOS / otros: localhost.
+ * Se sobreescribe con EXPO_PUBLIC_API_URL (apps/mobile/.env), p. ej. para un
+ * celular físico con Expo Go, donde hay que usar la IP LAN de la máquina.
+ */
+const DEFAULT_API_BASE =
+  Platform.select({ android: 'http://10.0.2.2:3000/v1', default: 'http://localhost:3000/v1' }) ??
+  'http://localhost:3000/v1';
+
+export const API_BASE: string = process.env.EXPO_PUBLIC_API_URL ?? DEFAULT_API_BASE;
 
 const ACCESS_KEY = 'pescaba_access';
 const REFRESH_KEY = 'pescaba_refresh';

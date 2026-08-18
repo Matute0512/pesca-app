@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import type { SiteSummary } from '@pescaba/shared';
 import { SUGGESTED_RADII_METERS } from '@pescaba/geo';
@@ -10,28 +9,40 @@ import { api } from '@/lib/api';
 import { useFiltersStore } from '@/store/filters';
 import { SiteList } from '@/components/SiteList';
 import { EmptyState } from '@/components/EmptyState';
+import { SiteMap } from '@/components/SiteMap';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { lat, lng, radiusMeters, setLocation, setRadius } = useFiltersStore();
   const [mode, setMode] = useState<'list' | 'map'>('list');
-  const [, setLocating] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const hasLocation = lat != null && lng != null;
 
+  /** Ubicación de ejemplo (CABA) para que la demo funcione sin GPS. */
+  function useDemoLocation() {
+    setLocationError(null);
+    setLocation(-34.6037, -58.3816);
+  }
+
   const enableLocation = useCallback(async () => {
     setLocating(true);
+    setLocationError(null);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
+        setLocationError(t('home.locationPermissionDenied'));
         return;
       }
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setLocation(pos.coords.latitude, pos.coords.longitude);
+    } catch {
+      setLocationError(t('home.locationUnavailable'));
     } finally {
       setLocating(false);
     }
-  }, [setLocation]);
+  }, [setLocation, t]);
 
   const { data: sites, isLoading, refetch, isError } = useQuery({
     queryKey: ['nearby', lat, lng, radiusMeters],
@@ -73,10 +84,16 @@ export default function HomeScreen() {
       </View>
 
       {!hasLocation ? (
-        <EmptyState
-          message={t('home.noLocation')}
-          onRetry={() => void enableLocation()}
-        />
+        <View style={styles.emptyWrap}>
+          <EmptyState
+            message={locationError ?? t('home.noLocation')}
+            onRetry={() => void enableLocation()}
+          />
+          <Pressable style={styles.demoBtn} onPress={useDemoLocation} accessibilityRole="button">
+            <Text style={styles.demoBtnText}>{t('home.useDemoLocation')}</Text>
+          </Pressable>
+          {locating && <Text style={styles.hint}>{t('home.locating')}</Text>}
+        </View>
       ) : mode === 'list' ? (
         <SiteList
           sites={sites ?? []}
@@ -84,23 +101,18 @@ export default function HomeScreen() {
           emptyMessage={t('home.empty')}
         />
       ) : (
-        <MapView
+        <SiteMap
           style={styles.map}
-          initialRegion={{
-            latitude: lat!,
-            longitude: lng!,
-            latitudeDelta: 0.15,
-            longitudeDelta: 0.15,
-          }}
-        >
-          {(sites ?? []).map((site) => (
-            <Marker
-              key={site.id}
-              coordinate={{ latitude: site.latitude, longitude: site.longitude }}
-              title={site.name}
-            />
-          ))}
-        </MapView>
+          latitude={lat!}
+          longitude={lng!}
+          latitudeDelta={0.15}
+          longitudeDelta={0.15}
+          markers={(sites ?? []).map((site) => ({
+            latitude: site.latitude,
+            longitude: site.longitude,
+            title: site.name,
+          }))}
+        />
       )}
 
       {isLoading && <Text style={styles.hint}>{t('common.loading')}</Text>}
@@ -111,6 +123,18 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f6f7f9' },
+  emptyWrap: { flex: 1 },
+  demoBtn: {
+    marginHorizontal: 24,
+    marginBottom: 24,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#0f766e',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  demoBtnText: { color: '#0f766e', fontWeight: '600' },
   toolbar: { padding: 10, gap: 8 },
   modeSwitch: { flexDirection: 'row', backgroundColor: '#e9edf2', borderRadius: 10, overflow: 'hidden' },
   modeBtn: { flex: 1, paddingVertical: 8, alignItems: 'center' },

@@ -1,12 +1,12 @@
 import { ScrollView, StyleSheet, Text, View, Pressable, Linking, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { formatCoordinates } from '@pescaba/geo';
 import type { SiteDetail } from '@pescaba/shared';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { SiteMap } from '@/components/SiteMap';
 
 export default function SiteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -66,20 +66,14 @@ export default function SiteDetailScreen() {
         {s.isVerified ? t('detail.verified') : t('detail.notVerified')}
       </Text>
 
-      <MapView
+      <SiteMap
         style={styles.map}
-        initialRegion={{
-          latitude: s.latitude,
-          longitude: s.longitude,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }}
-      >
-        <Marker
-          coordinate={{ latitude: s.latitude, longitude: s.longitude }}
-          title={s.name}
-        />
-      </MapView>
+        latitude={s.latitude}
+        longitude={s.longitude}
+        latitudeDelta={0.05}
+        longitudeDelta={0.05}
+        markers={[{ latitude: s.latitude, longitude: s.longitude, title: s.name }]}
+      />
 
       <Text style={styles.coords}>{formatCoordinates(s.latitude, s.longitude)}</Text>
 
